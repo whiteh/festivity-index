@@ -2,65 +2,63 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Is It Mariah Time?</title>
   <meta name="description" content="How festive is the nation? Tracked daily via Google searches for “All I Want for Christmas Is You”.">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎄</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❄️</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=DM+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main>
-    <header class="masthead">
-      <p class="eyebrow">The national festivity tracker</p>
-      <h1>Is it Mariah time?</h1>
-      <p class="lede">We watch how many people in <span data-geo>the country</span> are Googling
-        <em>“All I Want for Christmas Is You”</em> and decide how festive everyone is.</p>
-    </header>
+  <header class="topbar wrap">
+    <a class="brand" href="./">Is it Mariah time?</a>
+    <span class="stamp" id="stamp">Checking the charts…</span>
+  </header>
 
-    <section class="verdict" aria-live="polite">
-      <div class="verdict-top">
-        <div>
-          <p class="verdict-label">Today’s verdict</p>
-          <h2 id="verdict-title">Consulting the elves…</h2>
-        </div>
-        <div class="index" title="100 = as festive as a typical Christmas week">
-          <span class="index-num" id="index-value">–</span>
-          <span class="index-label">Festivity Index<br><span class="muted">100 = Christmas week</span></span>
-        </div>
+  <section class="hero" id="hero" aria-live="polite">
+    <canvas class="snow" id="snow" aria-hidden="true"></canvas>
+    <div class="wrap hero-inner">
+      <div class="hero-text">
+        <p class="eyebrow" id="eyebrow">Festive conditions</p>
+        <h1 id="verdict-title">Consulting the elves…</h1>
+        <p id="verdict-blurb" class="blurb"></p>
       </div>
-      <p id="verdict-blurb" class="verdict-blurb"></p>
-
-      <div class="meter" role="img" id="meter" aria-label="Festivity meter">
-        <div class="meter-track"><div class="meter-fill" id="meter-fill"></div></div>
-        <ol class="meter-ticks" id="meter-ticks"></ol>
+      <div class="readout" title="100 = as festive as a typical Christmas week">
+        <span class="readout-num" id="index-value">–</span>
+        <span class="readout-label">Festivity Index<span>100 = a typical Christmas week</span></span>
       </div>
-    </section>
+      <div class="thaw" id="meter" role="img" aria-label="Thaw scale">
+        <div class="thaw-track"><div class="thaw-fill" id="meter-fill"></div></div>
+        <ol class="thaw-ticks" id="meter-ticks"></ol>
+      </div>
+    </div>
+  </section>
 
-    <section class="tiles" id="tiles"></section>
+  <main class="wrap">
+    <section class="stats" id="tiles" aria-label="Comparisons"></section>
 
-    <section class="chart-card">
-      <div class="chart-head">
-        <h3>Every Christmas, overlaid</h3>
-        <p class="muted">Search interest from 1 September to early January. Each line is one festive season; this year is in red.</p>
+    <section class="chart-sec">
+      <div class="sec-head">
+        <h2>Every Christmas, overlaid</h2>
+        <p>Google searches for the song from 1 September to early January, one line per season. Red is this year.</p>
       </div>
       <div id="chart" class="chart"></div>
       <div id="legend" class="legend"></div>
-      <details class="table-toggle">
+      <details class="numbers">
         <summary>Show the numbers</summary>
         <div id="table"></div>
       </details>
     </section>
 
-    <footer class="foot muted">
-      <p id="updated"></p>
-      <p><strong>How it works.</strong> Google Trends reports interest on a relative 0–100 scale.
-        We fetch five years of weekly data plus the last 90 days daily, rescale the daily figures onto the
-        weekly scale, then compare the last seven days with the average height of past Christmas peaks.
-        That ratio is the <em>Festivity Index</em>: 100 means we’re as Mariah-mad as a typical Christmas week.</p>
-      <p>Data: <a href="https://trends.google.com/trends/explore?q=all%20i%20want%20for%20christmas%20is%20you" id="source-link">Google Trends</a>.
+    <footer class="foot">
+      <h2>How it works</h2>
+      <p>Google Trends scores search interest from 0 to 100. Each morning we fetch five years of weekly figures and the
+        last 90 days of daily figures for <em>“All I Want for Christmas Is You”</em> in <span data-geo>the country</span>,
+        and put both on the same scale. The <strong>Festivity Index</strong> is the past week’s average as a share of a
+        typical Christmas-week peak. Snowfall on this page is proportional to it.</p>
+      <p>Data from <a href="https://trends.google.com/trends/explore?q=all%20i%20want%20for%20christmas%20is%20you" id="source-link">Google Trends</a>.
         Not affiliated with Mariah Carey, who is presumably busy right now.</p>
     </footer>
   </main>

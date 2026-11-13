@@ -5,6 +5,7 @@
   const DAY = 864e5;
   const SEASON_END = 131;      // days after 1 Sep (~10 Jan)
   const XMAS = 115;            // 25 Dec, days after 1 Sep
+  const ITS_TIME = 61;         // 1 Nov: Mariah's annual "it's time" defrost
   const PAST_SEASONS = 5;
   const DAILY_DAYS = 28;      // use daily resolution for the most recent four weeks
 
@@ -125,16 +126,20 @@
   function ratioText(now, then) {
     if (!(then > 0)) return { v: "—", s: "no comparison available" };
     const r = now / then;
-    if (r >= 1.95) return { v: `${r.toFixed(1)}×`, s: "more festive" };
+    if (r >= 1.95) return { v: `${r.toFixed(1)}×`, s: "more festive", up: true };
     const pct = Math.round((r - 1) * 100);
     if (Math.abs(pct) < 5) return { v: "Level", s: "about the same" };
-    return { v: `${pct > 0 ? "+" : "−"}${Math.abs(pct)}%`, s: pct > 0 ? "more festive" : "less festive" };
+    return { v: `${pct > 0 ? "+" : "−"}${Math.abs(pct)}%`, s: pct > 0 ? "more festive" : "less festive", up: pct > 0 };
   }
 
   function renderVerdict(a, geoName) {
     const tier = tierFor(a.index);
     $("verdict-title").textContent = tier.name;
     $("index-value").textContent = Math.round(a.index);
+    const heat = Math.min(Math.max(a.index / 80, 0), 1);
+    document.documentElement.style.setProperty("--heat", heat.toFixed(3));
+    $("eyebrow").textContent = `Festive conditions · ${geoName} · ${fmtDate(a.lastDay)}`;
+    startSnow(a.index);
 
     let pace = "";
     if (a.inSeason && a.typical > 0) {
@@ -146,10 +151,13 @@
     $("verdict-blurb").textContent = tier.blurb + pace;
 
     const pos = meterPos(a.index);
-    requestAnimationFrame(() => ($("meter-fill").style.width = `${Math.max(pos, 1.5)}%`));
+    const fill = $("meter-fill");
+    // Keep the gradient pinned to the whole track so the fill reveals it rather than squashing it.
+    fill.style.setProperty("--track-w", `${$("meter").clientWidth}px`);
+    requestAnimationFrame(() => (fill.style.width = `${Math.max(pos, 1.5)}%`));
     $("meter").setAttribute("aria-label", `Festivity Index ${a.index.toFixed(0)} out of 100: ${tier.name}`);
     $("meter-ticks").innerHTML = TIERS.map((t) =>
-      `<li class="${t === tier ? "on" : ""}" style="left:${meterPos(t.min)}%"><span>${t.short}</span></li>`).join("");
+      `<li class="${t === tier ? "on" : ""}" style="left:${t === TIERS[TIERS.length - 1] ? 100 : meterPos(t.min)}%">${t.short}</li>`).join("");
   }
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -159,8 +167,8 @@
     const xmas = Date.UTC(a.lastDay.getUTCFullYear(), 11, 25);
     const sleeps = Math.round((xmas - a.lastDay) / DAY);
     const tiles = [
-      { k: "vs this time last year", v: vsLast.v, s: vsLast.s },
-      { k: `vs a typical year (${a.past.length}-yr avg)`, v: vsTyp.v, s: vsTyp.s },
+      { k: "vs this time last year", v: vsLast.v, s: vsLast.s, up: vsLast.up },
+      { k: `vs ${a.past.length}-year average`, v: vsTyp.v, s: vsTyp.s, up: vsTyp.up },
       a.liftoff
         ? { k: "Festive lift-off", v: fmtDate(a.liftoff.date), s: "when searches first hit 10% of peak" }
         : { k: "Festive lift-off", v: "Not yet", s: "searches still under 10% of peak" },
@@ -169,11 +177,11 @@
         : { k: "Christmas", v: sleeps === 0 ? "Today!" : "Done", s: sleeps === 0 ? "Merry Christmas" : "see you next year" },
     ];
     $("tiles").innerHTML = tiles.map((t) =>
-      `<div class="tile"><div class="k">${t.k}</div><div class="v">${t.v}</div><div class="s">${t.s}</div></div>`).join("");
+      `<div class="stat${t.up ? " up" : ""}"><div class="k">${t.k}</div><div class="v">${t.v}</div><div class="s">${t.s}</div></div>`).join("");
   }
 
   function seriesList(a) {
-    const list = [{ season: a.current, points: a.seasons.get(a.current) || [], color: css("--festive"), width: 3, now: true }];
+    const list = [{ season: a.current, points: a.seasons.get(a.current) || [], color: css("--red"), width: 3, now: true }];
     a.past.forEach((s, i) => list.push({ season: s, points: a.seasons.get(s), color: css(PAST_COLORS[i]), width: 2 }));
     return list;
   }
@@ -206,8 +214,10 @@
           ${yTicks.map((v) => `<text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`).join("")}
           ${months.map(([x, l]) => `<text x="${X(x) + 2}" y="${H - 8}">${l}</text>`).join("")}
         </g>
-        <g class="xmas"><line x1="${X(XMAS)}" x2="${X(XMAS)}" y1="${m.t}" y2="${m.t + ih}"/>
-          <text x="${X(XMAS) - 4}" y="${m.t + 10}" text-anchor="end">25 Dec</text></g>
+        <g class="marker"><line x1="${X(ITS_TIME)}" x2="${X(ITS_TIME)}" y1="${m.t}" y2="${m.t + ih}"/>
+          <text x="${X(ITS_TIME) + 5}" y="${m.t + 10}">${W < 560 ? "“It’s time”" : "1 Nov · “It’s time”"}</text></g>
+        <g class="marker"><line x1="${X(XMAS)}" x2="${X(XMAS)}" y1="${m.t}" y2="${m.t + ih}"/>
+          <text x="${X(XMAS) - 5}" y="${m.t + 10}" text-anchor="end">25 Dec</text></g>
         ${series.slice().reverse().map((s) =>
           `<path d="${path(s.points)}" fill="none" stroke="${s.color}" stroke-width="${s.width}" stroke-linejoin="round" stroke-linecap="round"/>`).join("")}
         ${tail ? `<circle cx="${X(tail.x)}" cy="${Y(tail.y)}" r="5" fill="${cur.color}" stroke="${css("--surface")}" stroke-width="2"/>
@@ -243,6 +253,48 @@
     hit.addEventListener("pointerleave", leave);
   }
 
+  // Snowfall proportional to the Festivity Index: a few stray flakes when
+  // nobody cares, a blizzard in Christmas week.
+  let snowStop = null;
+  function startSnow(index) {
+    if (snowStop) snowStop();
+    const canvas = $("snow"), ctx = canvas.getContext("2d");
+    const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let flakes = [], w = 0, h = 0, raf = 0;
+    const size = () => {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      w = canvas.clientWidth; h = canvas.clientHeight;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const n = Math.round(Math.min(8 + index * 2.5, 260) * (w / 1000));
+      flakes = Array.from({ length: Math.max(n, 4) }, () => ({
+        x: Math.random() * w, y: Math.random() * h,
+        r: 0.8 + Math.random() * 2.2, s: 0.25 + Math.random() * 0.7, d: Math.random() * Math.PI * 2,
+      }));
+    };
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = css("--flake");
+      for (const f of flakes) {
+        ctx.globalAlpha = 0.35 + f.r / 5;
+        ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2); ctx.fill();
+      }
+    };
+    const tick = () => {
+      for (const f of flakes) {
+        f.y += f.s; f.d += 0.01; f.x += Math.sin(f.d) * 0.3;
+        if (f.y > h + 4) { f.y = -4; f.x = Math.random() * w; }
+      }
+      draw();
+      raf = requestAnimationFrame(tick);
+    };
+    size();
+    if (still) draw(); else tick();
+    const onResize = () => { size(); if (still) draw(); };
+    addEventListener("resize", onResize);
+    snowStop = () => { cancelAnimationFrame(raf); removeEventListener("resize", onResize); };
+  }
+
   const seasonLabel = (s, current) => (s === current ? `${s} (this year)` : `${s}`);
 
   function renderTable(a) {
@@ -261,7 +313,7 @@
     const geoName = GEO_NAMES[data.geo] || data.geo;
     document.querySelectorAll("[data-geo]").forEach((el) => (el.textContent = geoName));
     const updated = new Date(data.updated);
-    $("updated").textContent = `Last updated ${updated.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" })} UTC · Region: ${geoName}`;
+    $("stamp").textContent = `Updated ${updated.toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" })} UTC`;
     const q = encodeURIComponent(data.term);
     $("source-link").href = `https://trends.google.com/trends/explore?q=${q}${data.geo && data.geo !== "Worldwide" ? `&geo=${data.geo}` : ""}`;
     return geoName;
@@ -279,11 +331,14 @@
       renderChart(a);
       renderTable(a);
       let t;
-      addEventListener("resize", () => { clearTimeout(t); t = setTimeout(() => renderChart(a), 150); });
+      addEventListener("resize", () => { clearTimeout(t); t = setTimeout(() => {
+        renderChart(a);
+        $("meter-fill").style.setProperty("--track-w", `${$("meter").clientWidth}px`);
+      }, 150); });
       matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => renderChart(a));
     } catch (err) {
-      $("verdict-title").textContent = "The elves dropped the data";
-      $("verdict-blurb").textContent = `Couldn't load data/trends.json (${err.message}). Run scripts/fetch_trends.py first.`;
+      $("verdict-title").textContent = "No data yet";
+      $("verdict-blurb").textContent = `Couldn't load data/trends.json (${err.message}). Run scripts/fetch_trends.py to fetch it.`;
       console.error(err);
     }
   }
