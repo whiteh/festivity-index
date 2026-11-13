@@ -95,6 +95,9 @@ a:focus-visible, summary:focus-visible { outline: 2px solid var(--red); outline-
 }
 .blurb { margin: 18px 0 0; max-width: 52ch; color: var(--ink-2); font-size: 18px; }
 
+.measure { margin: 14px 0 0; max-width: 52ch; font: 13px/1.5 var(--mono); color: var(--ink-3); }
+.measure em { font-style: normal; color: var(--ink-2); }
+
 .readout { display: grid; justify-items: end; text-align: right; }
 .readout-num {
   font: 800 clamp(72px, 13vw, 148px)/.8 var(--display); font-stretch: 75%; letter-spacing: -.04em;

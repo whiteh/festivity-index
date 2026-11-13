@@ -1,19 +1,19 @@
-// Is It Mariah Time? — reads data/trends.json and passes judgement.
+// How festive is the nation? Reads data/trends.json and passes judgement.
 (() => {
   "use strict";
 
   const DAY = 864e5;
   const SEASON_END = 131;      // days after 1 Sep (~10 Jan)
   const XMAS = 115;            // 25 Dec, days after 1 Sep
-  const ITS_TIME = 61;         // 1 Nov: Mariah's annual "it's time" defrost
+  const NOV_1 = 61;            // 1 Nov: when festive searches traditionally take off
   const PAST_SEASONS = 5;
   const DAILY_DAYS = 28;      // use daily resolution for the most recent four weeks
 
   // Festivity Index thresholds (100 = a typical Christmas-week peak).
   const TIERS = [
     { min: 0,  name: "Bah humbug",            short: "Humbug",
-      blurb: "Autumn reigns. Mariah remains frozen in her ice palace, and the nation is having none of it." },
-    { min: 3,  name: "Mariah is thawing",     short: "Thawing",
+      blurb: "Autumn reigns. The decorations are still in the loft and the nation is having none of it." },
+    { min: 3,  name: "Thawing out",           short: "Thawing",
       blurb: "The ice is cracking. A few early adopters have caved, and somewhere a garden centre has its lights up." },
     { min: 10, name: "Jingle bells, faintly", short: "Jingling",
       blurb: "The nation is warming up. Office party playlists are being quietly drafted." },
@@ -21,8 +21,8 @@
       blurb: "Advent calendars are open and the festive mood is spreading fast. Resistance is weakening." },
     { min: 50, name: "Fully festive",         short: "Festive",
       blurb: "It’s in every shop, on every radio and at every party. There is no escape and nobody wants one." },
-    { min: 80, name: "IT’S TIIIIME",          short: "Peak Mariah",
-      blurb: "Peak Mariah. The entire country is attempting the whistle note. Merry Christmas." },
+    { min: 80, name: "Peak Christmas",        short: "Peak",
+      blurb: "Maximum festivity. The whole country is in full Christmas mode. Merry Christmas." },
   ];
 
   const GEO_NAMES = { GB: "the UK", US: "the US", IE: "Ireland", AU: "Australia", CA: "Canada", Worldwide: "the world" };
@@ -214,8 +214,8 @@
           ${yTicks.map((v) => `<text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`).join("")}
           ${months.map(([x, l]) => `<text x="${X(x) + 2}" y="${H - 8}">${l}</text>`).join("")}
         </g>
-        <g class="marker"><line x1="${X(ITS_TIME)}" x2="${X(ITS_TIME)}" y1="${m.t}" y2="${m.t + ih}"/>
-          <text x="${X(ITS_TIME) + 5}" y="${m.t + 10}">${W < 560 ? "“It’s time”" : "1 Nov · “It’s time”"}</text></g>
+        <g class="marker"><line x1="${X(NOV_1)}" x2="${X(NOV_1)}" y1="${m.t}" y2="${m.t + ih}"/>
+          <text x="${X(NOV_1) + 5}" y="${m.t + 10}">1 Nov</text></g>
         <g class="marker"><line x1="${X(XMAS)}" x2="${X(XMAS)}" y1="${m.t}" y2="${m.t + ih}"/>
           <text x="${X(XMAS) - 5}" y="${m.t + 10}" text-anchor="end">25 Dec</text></g>
         ${series.slice().reverse().map((s) =>
@@ -312,6 +312,8 @@
   function renderMeta(data) {
     const geoName = GEO_NAMES[data.geo] || data.geo;
     document.querySelectorAll("[data-geo]").forEach((el) => (el.textContent = geoName));
+    $("brand").textContent = `How festive is ${geoName}?`;
+    document.title = `How Festive Is ${geoName}?`;
     const updated = new Date(data.updated);
     $("stamp").textContent = `Updated ${updated.toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" })} UTC`;
     const q = encodeURIComponent(data.term);

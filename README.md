@@ -1,11 +1,12 @@
-# Is it Mariah time? 🎄
+# How festive is the UK? 🎄
 
-A tiny website that judges how festive the nation is by tracking Google searches
-for Mariah Carey's *All I Want for Christmas Is You*.
+A tiny website that gives a daily verdict on how festive the nation is. The measure:
+Google searches for *All I Want for Christmas Is You*, which climb every year as
+Christmas approaches.
 
 - **Festivity Index** — the last 7 days of search interest as a percentage of an
   average past Christmas peak (100 = a typical Christmas week). It maps to a verdict,
-  from *Bah humbug* to *IT'S TIIIIME*.
+  from *Bah humbug* to *Peak Christmas*.
 - Comparisons with the same date last year and with a 5-year average.
 - **Festive lift-off** — the first day this season searches reached 10% of a typical peak.
 - A chart overlaying every season since 2021.
