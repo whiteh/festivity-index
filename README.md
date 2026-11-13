@@ -18,6 +18,10 @@ Trends. Because Trends normalises every request to 0–100, the daily series is 
 onto the weekly scale (least-squares fit over the weeks they share). The result
 goes to `site/data/trends.json`; everything else happens in the browser (`site/app.js`).
 
+Each run also saves the raw responses to `data/archive/YYYY-MM-DD.json`. The 5-year
+window rolls forward, so weeks that drop out of it are restored from older archive
+files (rescaled the same way). The chart keeps every season indefinitely.
+
 ## Run it locally
 
 ```sh
@@ -30,10 +34,12 @@ Change region with `TRENDS_GEO` (`GB` by default; `US`, `IE`, or empty for world
 
 ## Hosting
 
-`.github/workflows/update.yml` runs daily: fetches fresh data, commits it, and deploys
-`site/` to GitHub Pages. To enable: push to GitHub, then in **Settings → Pages** set
-the source to **GitHub Actions**. Set a repository variable `TRENDS_GEO` to change region.
+GitHub Pages, deployed by `.github/workflows/update.yml`. It runs daily at 06:17 UTC:
+scrapes Trends, commits the data and archive, then publishes `site/`. It also redeploys
+whenever `site/` changes, and can be run by hand from the Actions tab.
 
-Google Trends has no official public API and sometimes rate-limits (HTTP 429)
-cloud IPs. The script retries with back-off; if a run still fails, the site keeps showing
-the previous day's data.
+Set a repository variable `TRENDS_GEO` to change region.
+
+Google Trends has no official API and blocks some cloud IPs (it rejects requests from
+Cloudflare's network, for example). The script retries with back-off; if a run still
+fails, the site keeps the previous day's data.
