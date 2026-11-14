@@ -2,7 +2,10 @@ name: Update festivity data
 
 on:
   schedule:
-    - cron: "17 6 * * *"   # daily, 06:17 UTC
+    # GitHub can delay or drop scheduled runs when busy, so run twice a day.
+    # A second run on the same day just refreshes that day's data.
+    - cron: "17 6 * * *"   # 06:17 UTC
+    - cron: "43 13 * * *"  # 13:43 UTC (backup)
   workflow_dispatch:       # run by hand from the Actions tab
   push:
     branches: [master]
