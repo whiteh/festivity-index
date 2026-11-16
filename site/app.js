@@ -190,7 +190,7 @@
     const host = $("chart");
     const W = Math.max(host.clientWidth, 280);
     const H = W < 500 ? 260 : 340;
-    const m = { t: 12, r: W < 500 ? 12 : 64, b: 28, l: 32 };
+    const m = { t: 12, r: 16, b: 28, l: 32 };
     const iw = W - m.l - m.r, ih = H - m.t - m.b;
     const series = seriesList(a);
 
