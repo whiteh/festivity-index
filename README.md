@@ -8,7 +8,9 @@ Christmas approaches.
   average past Christmas peak (100 = a typical Christmas week). It maps to a verdict,
   from *Bah humbug* to *Peak Christmas*.
 - Comparisons with the same date last year and with a 5-year average.
-- **Festive lift-off** — the first day this season searches reached 10% of a typical peak.
+- **Festive lift-off** — the first day this season searches reached 10% of a typical peak
+  and stayed above it for a week. Once that week has passed the date is locked in
+  `data/liftoff.json` and never recalculated.
 - A chart overlaying every season since 2021.
 
 ## How it works
@@ -18,6 +20,12 @@ to pull five years of weekly data and the last 90 days of daily data from Google
 Trends. Because Trends normalises every request to 0–100, the daily series is rescaled
 onto the weekly scale (least-squares fit over the weeks they share). The result
 goes to `site/data/trends.json`; everything else happens in the browser (`site/app.js`).
+
+Google samples searches, so the same request gives slightly different numbers a few
+hours apart, and now and then a daily response is plainly wrong (zeros in busy weeks).
+The scraper rejects daily responses that don't match the weekly data, keeping the
+previous data if today's looks wrong, and uses each day's median across the last
+week of archived responses.
 
 Each run also saves the raw responses to `data/archive/YYYY-MM-DD.json`. The 5-year
 window rolls forward, so weeks that drop out of it are restored from older archive

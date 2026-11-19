@@ -57,13 +57,12 @@
     const daily = data.daily
       .filter(([d]) => !data.dailyPartialFrom || d < data.dailyPartialFrom)
       .map(([d, v]) => ({ date: parse(d), v }));
-    // Daily values are integers on their own 0-100 scale, so quiet days round to
-    // zero; only trust them for the recent weeks where they add resolution.
-    // Use them from the latest unbroken run of non-zero days, at most DAILY_DAYS.
-    let start = daily.length;
-    while (start > 0 && daily[start - 1].v > 0 && daily.length - start < DAILY_DAYS) start--;
-    const firstDaily = start < daily.length ? daily[start].date : null;
+    // Use daily resolution for the last four weeks and weekly before that.
+    const firstDaily = daily.length
+      ? new Date(Math.max(daily[0].date, daily[daily.length - 1].date - (DAILY_DAYS - 1) * DAY))
+      : null;
 
+    const weeklyByStart = new Map(data.weekly.map(([d, v]) => [d, v]));
     for (const [d, v] of data.weekly) {
       if (data.weeklyPartialFrom && d >= data.weeklyPartialFrom) continue;
       const mid = new Date(parse(d).getTime() + 3 * DAY); // plot weeks at mid-week
@@ -75,10 +74,15 @@
     }
     for (const { date, v } of daily) {
       if (!firstDaily || date < firstDaily) continue;
+      // Quiet days can round to zero on the daily scale; that means "too few to
+      // measure", not "nobody searched", so use that week's weekly figure.
+      const weekStart = new Date(date.getTime() - date.getUTCDay() * DAY).toISOString().slice(0, 10);
+      const y = v === 0 ? weeklyByStart.get(weekStart) : v;
+      if (y === undefined) continue;
       const s = seasonOf(date);
       if (s === null) continue;
       const x = dayOfSeason(date, s);
-      if (x <= SEASON_END) add(s, x, v, date);
+      if (x <= SEASON_END) add(s, x, y, date);
     }
     for (const pts of seasons.values()) pts.sort((a, b) => a.x - b.x);
     return { seasons, daily };
@@ -109,9 +113,8 @@
     const lastYear = sameTime.find((p) => p.season === current - 1) || null;
     const typical = mean(sameTime.map((p) => p.value));
 
-    // Lift-off: first day this season reaching 10% of a typical peak.
-    const threshold = avgPeak * 0.1;
-    const liftoff = (seasons.get(current) || []).find((p) => p.y >= threshold) || null;
+    // Lift-off is worked out (and locked once confirmed) by the scraper.
+    const liftoff = data.liftoff ? { date: parse(data.liftoff.date), confirmed: data.liftoff.confirmed } : null;
 
     return { seasons, current, past, peaks, avgPeak, now, index, nowX, lastYear, typical, liftoff, lastDay, inSeason };
   }
@@ -170,7 +173,8 @@
       { k: "vs this time last year", v: vsLast.v, s: vsLast.s, up: vsLast.up },
       { k: `vs ${a.past.length}-year average`, v: vsTyp.v, s: vsTyp.s, up: vsTyp.up },
       a.liftoff
-        ? { k: "Festive lift-off", v: fmtDate(a.liftoff.date), s: "when searches first hit 10% of peak" }
+        ? { k: "Festive lift-off", v: fmtDate(a.liftoff.date),
+            s: a.liftoff.confirmed ? "searches took off and stayed up" : "provisional: needs a week above 10% of peak" }
         : { k: "Festive lift-off", v: "Not yet", s: "searches still under 10% of peak" },
       sleeps > 0
         ? { k: "Sleeps until Christmas", v: sleeps, s: "as of the latest data" }
