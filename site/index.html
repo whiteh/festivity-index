@@ -54,13 +54,61 @@
     </section>
 
     <footer class="foot">
-      <h2>How it works</h2>
-      <p>Google Trends scores search interest from 0 to 100. Each morning we fetch five years of weekly figures and the
-        last 90 days of daily figures for <em>“All I Want for Christmas Is You”</em> in <span data-geo>the country</span>,
-        and put both on the same scale. The <strong>Festivity Index</strong> is the past week’s average as a share of a
-        typical Christmas-week peak. Snowfall on this page is proportional to it.</p>
-      <p>Data from <a href="https://trends.google.com/trends/explore?q=all%20i%20want%20for%20christmas%20is%20you" id="source-link">Google Trends</a>.
-        Not affiliated with Mariah Carey, who is presumably busy right now.</p>
+      <section class="note">
+        <h2>How it works</h2>
+        <div class="note-body">
+          <p>Twice a day we fetch five years of weekly figures and the last 90 days of daily figures from Google Trends
+            for <em>“All I Want for Christmas Is You”</em> in <span data-geo>the country</span>, and put both on the
+            same scale. The <strong>Festivity Index</strong> is the past week’s average as a share of a typical
+            Christmas-week peak. Snowfall on this page is proportional to it.</p>
+        </div>
+      </section>
+
+      <section class="note">
+        <h2>About the data</h2>
+        <div class="note-body">
+          <p>Google Trends is a brilliant free source, but it has quirks worth knowing before you read too much into
+            any single day.</p>
+          <dl class="quirks">
+            <div>
+              <dt>It’s relative, not a count</dt>
+              <dd>Trends scores interest from 0 to 100, where 100 is the busiest moment in whatever period you ask
+                about, and never reveals how many searches that is. Every request gets its own 100, so we line the
+                weekly and daily figures up using the weeks they share, and measure everything against past
+                Christmases.</dd>
+            </div>
+            <div>
+              <dt>It’s a sample</dt>
+              <dd>Google estimates interest from a sample of searches, so asking the same question a few hours apart
+                gives slightly different answers. Each day on the chart is the median of up to a week of readings, but
+                the index can still move a point or so with no real change in mood.</dd>
+            </div>
+            <div>
+              <dt>Quiet days round to zero</dt>
+              <dd>Figures are whole numbers, so on the daily scale a quiet October day can show as 0. That means too
+                few searches to measure, not none, so we use the weekly figure for those days.</dd>
+            </div>
+            <div>
+              <dt>Now and then it’s just wrong</dt>
+              <dd>Occasionally a response has zeros in the middle of a busy week. We check every response against the
+                weekly figures and skip any that don’t add up, keeping the previous data until a good one arrives.</dd>
+            </div>
+            <div>
+              <dt>Recent days are provisional</dt>
+              <dd>Today is only part of a day, and the latest days have fewer readings behind them, so they settle over
+                the following week. Festive lift-off is fixed only once the week after it has passed.</dd>
+            </div>
+            <div>
+              <dt>It measures interest in one song</dt>
+              <dd>Searches also react to news, adverts, a viral video or Mariah herself. The song has been a remarkably
+                steady festive barometer year after year, but it stands in for the national mood rather than
+                measuring it directly.</dd>
+            </div>
+          </dl>
+          <p class="credit">Data from <a href="https://trends.google.com/trends/explore?q=all%20i%20want%20for%20christmas%20is%20you" id="source-link">Google Trends</a>.
+            Not affiliated with Mariah Carey, who is presumably busy right now.</p>
+        </div>
+      </section>
     </footer>
   </main>
   <div class="tooltip" id="tooltip" hidden></div>
